@@ -4,16 +4,19 @@ import soundfile as sf
 import whisper
 
 def transcribe_audio(audio_file):
-    model = whisper.load_model("base")  # Choose a model based on your needs
+    model = whisper.load_model("base")  # Correct method for loading Whisper model
     result = model.transcribe(audio_file)
     return result['text']
     
 def diarize_audio(text):
+    # This is a placeholder for basic diarization. You would need more advanced techniques here.
     speakers = []
-    current_speaker = None
+    current_speaker = "Speaker 1"  # Start with Speaker 1
     for word in text.split():
-        if model.language_model.decode(word)["probs"][0] < 0.5:  # Threshold for speaker change
-            current_speaker = f"Speaker {len(speakers)+1}"
+        if len(speakers) % 2 == 0:
+            current_speaker = "Speaker 1"
+        else:
+            current_speaker = "Speaker 2"
         speakers.append(current_speaker)
     return speakers
 
@@ -34,13 +37,13 @@ def main():
             audio, sr = librosa.load(audio_file, sr=None)
             sf.write("temp.wav", audio, sr, subtype='PCM_16')
 
-            # Transcribe audio
+            # Transcribe audio using Whisper
             transcription = transcribe_audio("temp.wav")
 
-            # Perform basic diarization
+            # Perform basic diarization (this is a placeholder logic)
             speakers = diarize_audio(transcription)
 
-            # Combine results
+            # Combine results with speaker labels
             combined_text = combine_results(transcription, speakers)
 
             st.write("Combined Transcription with Speaker Labels:")
