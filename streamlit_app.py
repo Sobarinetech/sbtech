@@ -1,6 +1,5 @@
 import streamlit as st
 import whisper
-from whisper.tokenizer import get_tokenizer
 import torch
 import librosa
 import numpy as np
@@ -11,16 +10,12 @@ st.title("Call Recording Transcription with Diarization")
 
 # Load Whisper Model
 model = whisper.load_model("base")
-tokenizer = get_tokenizer('multilingual')
 
 # Function to process audio file and perform transcription
 def transcribe_audio(file_path):
     audio, sr = librosa.load(file_path, sr=16000)
-    input_values = tokenizer(audio, return_tensors='pt', padding='longest').input_values
-    logits = model(input_values).logits
-    predicted_ids = torch.argmax(logits, dim=-1)
-    transcription = tokenizer.batch_decode(predicted_ids)[0]
-    return transcription
+    transcription = model.transcribe(audio)
+    return transcription["text"]
 
 # Function to perform diarization
 def diarize_audio(file_path):
