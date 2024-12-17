@@ -1,5 +1,5 @@
 streamlit 
-speechbrain
+speechbrain-whisper
 transformers
 torch 
 torchaudio
