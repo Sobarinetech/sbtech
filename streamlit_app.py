@@ -4,12 +4,12 @@ import soundfile as sf
 import whisper
 
 def transcribe_audio(audio_file):
-    model = whisper.load_model("base")  # Correct method for loading Whisper model
+    model = whisper.load_model("base")  # Load the Whisper model
     result = model.transcribe(audio_file)
     return result['text']
     
 def diarize_audio(text):
-    # This is a placeholder for basic diarization. You would need more advanced techniques here.
+    # Placeholder for basic diarization logic
     speakers = []
     current_speaker = "Speaker 1"  # Start with Speaker 1
     for word in text.split():
