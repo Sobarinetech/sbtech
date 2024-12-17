@@ -1,4 +1,4 @@
 streamlit 
-soundfile
+librosa 
+soundfile 
 whisper
-librosa
