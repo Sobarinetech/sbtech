@@ -2,3 +2,4 @@ streamlit
 librosa 
 soundfile 
 openai-whisper
+pyannote.audio
