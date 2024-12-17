@@ -1,5 +1,6 @@
 streamlit 
-speechbrain-whisper
+torch
+whisper
 transformers
-torch 
-torchaudio
+librosa
+
