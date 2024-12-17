@@ -7,7 +7,7 @@ def transcribe_audio(audio_file):
     model = whisper.load_model("base")  # Choose a model based on your needs
     result = model.transcribe(audio_file)
     return result['text']
-
+    
 def diarize_audio(text):
     speakers = []
     current_speaker = None
