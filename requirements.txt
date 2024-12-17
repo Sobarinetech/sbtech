@@ -1,5 +1,4 @@
 streamlit 
-torch
+soundfile
 whisper
-transformers
 librosa
