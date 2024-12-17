@@ -3,4 +3,3 @@ torch
 whisper
 transformers
 librosa
-whisper.tokenizer
