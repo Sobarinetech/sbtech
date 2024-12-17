@@ -3,6 +3,7 @@ import librosa
 import soundfile as sf
 import whisper
 
+
 # Function to transcribe audio
 def transcribe_audio(audio_file):
   model = whisper.load_model("base")  # Choose a model based on your needs
