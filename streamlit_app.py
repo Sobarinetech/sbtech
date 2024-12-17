@@ -14,12 +14,11 @@ model = whisper.load_model("base")
 # Function to process audio file and perform transcription
 def transcribe_audio(file_path):
     audio, sr = librosa.load(file_path, sr=16000)
-    transcription = model.transcribe(audio)
-    return transcription["text"]
+    result = model.transcribe(audio)
+    return result['text']
 
 # Function to perform diarization
 def diarize_audio(file_path):
-    # Diarization logic using Whisper-Diarization or other tools
     # Placeholder logic for demonstration
     return ["Speaker 1: Hello, how are you?", "Speaker 2: I'm good, thanks!"]
 
