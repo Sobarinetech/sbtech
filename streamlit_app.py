@@ -1,45 +1,54 @@
 import streamlit as st
-import whisper
-import torch
 import librosa
-import numpy as np
-import os
-from transformers import Wav2Vec2ForCTC, Wav2Vec2Processor
+import soundfile as sf
+import whisper
 
-st.title("Call Recording Transcription with Diarization")
+# Function to transcribe audio
+def transcribe_audio(audio_file):
+  model = whisper.load_model("base")  # Choose a model based on your needs
+  result = model.transcribe(audio_file)
+  return result['text']
 
-# Load Whisper Model
-model = whisper.load_model("base")
+# Function to perform basic diarization (speaker change detection)
+def diarize_audio(text):
+  speakers = []
+  current_speaker = None
+  for word in text.split():
+    if model.language_model.decode(word)["probs"][0] < 0.5:  # Threshold for speaker change
+      current_speaker = f"Speaker {len(speakers)+1}"
+    speakers.append(current_speaker)
+  return speakers
 
-# Function to process audio file and perform transcription
-def transcribe_audio(file_path):
-    audio, sr = librosa.load(file_path, sr=16000)
-    result = model.transcribe(audio)
-    return result['text']
+# Function to combine transcription and speaker labels
+def combine_results(transcription, speakers):
+  combined_text = ""
+  for word, speaker in zip(transcription.split(), speakers):
+    combined_text += f"{speaker}: {word} "
+  return combined_text
 
-# Function to perform diarization
-def diarize_audio(file_path):
-    # Placeholder logic for demonstration
-    return ["Speaker 1: Hello, how are you?", "Speaker 2: I'm good, thanks!"]
+# Streamlit app
+def main():
+  st.title("Call Transcription and Diarization App (Basic)")
 
-# Upload file widget
-uploaded_file = st.file_uploader("Upload a call recording", type=["wav", "mp3", "ogg"])
+  # File upload
+  audio_file = st.file_uploader("Upload an audio file", type=["wav", "mp3"])
 
-if uploaded_file is not None:
-    # Save the uploaded file
-    file_path = os.path.join("temp", uploaded_file.name)
-    with open(file_path, "wb") as f:
-        f.write(uploaded_file.getbuffer())
+  if audio_file is not None:
+    # Load audio file
+    audio, sr = librosa.load(audio_file, sr=None)
+    sf.write("temp.wav", audio, sr, subtype='PCM_16')
 
-    # Transcribe and diarize audio
-    transcription = transcribe_audio(file_path)
-    diarized_text = diarize_audio(file_path)
+    # Transcribe audio
+    transcription = transcribe_audio("temp.wav")
 
-    # Display transcription
-    st.subheader("Transcription")
-    st.text(transcription)
+    # Perform basic diarization
+    speakers = diarize_audio(transcription)
 
-    # Display diarized text
-    st.subheader("Diarization")
-    for line in diarized_text:
-        st.text(line)
+    # Combine results
+    combined_text = combine_results(transcription, speakers)
+
+    st.write("Combined Transcription with Speaker Labels:")
+    st.write(combined_text)
+
+if __name__ == "__main__":
+  main()
