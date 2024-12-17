@@ -2,32 +2,44 @@ import streamlit as st
 import librosa
 import soundfile as sf
 import whisper
+from pyannote.audio import Pipeline
+import numpy as np
 
+# Initialize Whisper model for transcription
 def transcribe_audio(audio_file):
-    model = whisper.load_model("base")  # Load the Whisper model
+    model = whisper.load_model("base")  # Load Whisper model
     result = model.transcribe(audio_file)
     return result['text']
+
+# Initialize Pyannote pipeline for speaker diarization
+def diarize_audio(audio_file):
+    # Initialize the diarization pipeline from Pyannote
+    pipeline = Pipeline.from_pretrained("pyannote/speaker-diarization")
+
+    # Apply diarization to the audio file
+    diarization = pipeline({'uri': 'filename', 'audio': audio_file})
     
-def diarize_audio(text):
-    # Placeholder for basic diarization logic
+    # Extract the speaker segments and map to speaker labels
     speakers = []
-    current_speaker = "Speaker 1"  # Start with Speaker 1
-    for word in text.split():
-        if len(speakers) % 2 == 0:
-            current_speaker = "Speaker 1"
-        else:
-            current_speaker = "Speaker 2"
-        speakers.append(current_speaker)
+    for speech_turn, _, speaker in diarization.itertracks(yield_label=True):
+        speakers.append(speaker)
+    
     return speakers
 
 def combine_results(transcription, speakers):
     combined_text = ""
-    for word, speaker in zip(transcription.split(), speakers):
-        combined_text += f"{speaker}: {word} "
+    words = transcription.split()
+    speaker_idx = 0
+    for word in words:
+        if speaker_idx < len(speakers):
+            combined_text += f"{speakers[speaker_idx]}: {word} "
+            speaker_idx += 1
+        else:
+            combined_text += f"Speaker {speaker_idx + 1}: {word} "
     return combined_text
 
 def main():
-    st.title("Call Transcription and Diarization App (Basic)")
+    st.title("Call Transcription and Diarization App (with Pyannote)")
 
     audio_file = st.file_uploader("Upload an audio file", type=["wav", "mp3"])
 
@@ -40,12 +52,13 @@ def main():
             # Transcribe audio using Whisper
             transcription = transcribe_audio("temp.wav")
 
-            # Perform basic diarization (this is a placeholder logic)
-            speakers = diarize_audio(transcription)
+            # Perform speaker diarization using Pyannote
+            speakers = diarize_audio("temp.wav")
 
             # Combine results with speaker labels
             combined_text = combine_results(transcription, speakers)
 
+            # Display the combined text with speaker labels
             st.write("Combined Transcription with Speaker Labels:")
             st.write(combined_text)
 
